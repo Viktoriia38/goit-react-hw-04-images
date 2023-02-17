@@ -1,0 +1,35 @@
+.searchbar {
+    display: block;
+    padding: 20px;
+    background-color: bisque;
+}
+
+.form {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 20px;
+}
+
+.button {
+    width: 160px;
+    height: 40px;
+    background-color: #0101b080;
+    color: aliceblue;
+    border: none;
+    border-radius: 10px;
+}
+
+.button:hover {
+    background-color: #ff7cf4d8;
+    cursor:pointer;
+}
+
+.input {
+    width: 400px;
+    height: 40px;
+    border-radius: 10px;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 20px;
+    padding: 5px 10px;
+}
