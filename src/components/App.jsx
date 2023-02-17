@@ -45,7 +45,7 @@ export function App() {
     takeImages();
   }, [query, page, perPage]);
 
-  const coin = Math.floor(totalHits / perPage);
+  const coin = Math.ceil(totalHits / perPage);
 
   return (
     <div className={css.App}>
