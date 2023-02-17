@@ -10,12 +10,6 @@ export class Modal extends Component {
     }
   };
 
-  onBackDropPress = e => {
-    if (e.target === e.currentTarget) {
-      this.props.closeModal();
-    }
-  };
-
   onEscPress = e => {
     if (e.code === 'Escape') {
       this.props.closeModal();
