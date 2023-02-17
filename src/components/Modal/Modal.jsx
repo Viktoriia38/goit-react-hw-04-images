@@ -1,50 +1,48 @@
 import propTypes from 'prop-types';
-import { Component } from 'react';
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import css from './Modal.module.css';
 
-export class Modal extends Component {
-  onBackDropPress = e => {
+export function Modal(props) {
+  const onBackDropPress = e => {
     if (e.target === e.currentTarget) {
-      this.props.closeModal();
+      props.closeModal();
     }
   };
 
-  onEscPress = e => {
+  const onEscPress = e => {
     if (e.code === 'Escape') {
-      this.props.closeModal();
+      props.closeModal();
     }
   };
 
-  componentDidMount() {
-    window.addEventListener('keydown', this.onEscPress);
-    window.addEventListener('click', this.onBackDropPress);
-  }
+  useEffect(() => {
+    window.addEventListener('keydown', onEscPress);
+    window.addEventListener('click', onBackDropPress);
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.onEscPress);
-    window.removeEventListener('click', this.onBackDropPress);
-  }
+    return () => {
+      window.removeEventListener('keydown', onEscPress);
+      window.removeEventListener('click', onBackDropPress);
+    };
+  });
 
-  render() {
-    const { id, largeImageURL, tags } = this.props.images;
+  const { id, largeImageURL, tags } = props.images;
 
-    return createPortal(
-      <div onClick={this.onBackDropPress} className={css.overlay}>
-        <div className={css.modal} key={id}>
-          <img src={largeImageURL} alt={tags} />
-        </div>
-      </div>,
-      document.getElementById('modal')
-    );
-  }
+  return createPortal(
+    <div onClick={onBackDropPress} className={css.overlay}>
+      <div className={css.modal} key={id}>
+        <img src={largeImageURL} alt={tags} />
+      </div>
+    </div>,
+    document.getElementById('modal')
+  );
 }
 
 Modal.propTypes = {
   closeModal: propTypes.func.isRequired,
-  images: propTypes.exact({
+  images: propTypes.shape({
     tags: propTypes.string.isRequired,
     largeImageURL: propTypes.string.isRequired,
-    id: propTypes.object.isRequired,
+    id: propTypes.number.isRequired,
   }),
 };

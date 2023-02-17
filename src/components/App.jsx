@@ -1,79 +1,58 @@
 import './styles.css';
 import css from './App.module.css';
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { getImagesService } from 'services/image-gallery';
 import { Button } from './Button/Button';
 import { Loader } from './Loader/Loader';
 
-export class App extends Component {
-  state = {
-    images: [],
-    status: 'idle',
-    perPage: 12,
-    query: '',
-    page: 1,
-    isLoading: false,
-    totalHits: 0,
-  };
+export function App() {
+  const [images, setImages] = useState([]);
+  const [status, setStatus] = useState('idle');
+  const [perPage, setPerPage] = useState(12);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalHits, setTotalHits] = useState(0);
 
-  formSubmit = name => {
-    const { query } = this.state;
-
+  const formSubmit = name => {
     if (name !== query) {
-      this.setState({
-        images: [],
-        query: name,
-        page: 1,
-        perPage: 12,
-        isLoading: false,
-      });
+      setImages([]);
+      setQuery(name);
+      setPage(1);
+      setPerPage(12);
     }
   };
 
-  handleAddImages = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const handleAddImages = () => {
+    setPage(prevState => prevState + 1);
   };
 
-  async componentDidUpdate(_, prevState) {
-    const { query, perPage, page } = this.state;
-    if (prevState.query !== query || prevState.page !== page) {
-      this.setState({ status: 'loading' });
-      this.setState({ isLoading: true });
+  useEffect(() => {
+    if (!query) return;
+    async function takeImages() {
+      setStatus('loading');
       try {
-        const response = await getImagesService({
-          query,
-          perPage,
-          page,
-        });
-        this.setState(prevState => ({
-          images: [...prevState.images, ...response.hits],
-          totalHits: response.totalHits,
-          status: 'fulfilled',
-        }));
+        const response = await getImagesService(query, perPage, page);
+        setImages(prevState => [...prevState, ...response.hits]);
+        setTotalHits(response.totalHits);
+        setStatus('fulfilled');
       } catch (error) {
-        this.setState({ status: 'rejected' });
+        setStatus('rejected');
         throw new Error(error.message);
-      } finally {
-        this.setState({ isLoading: false });
       }
     }
-  }
+    takeImages();
+  }, [query, page, perPage]);
 
-  render() {
-    const { totalHits, images, page, query } = this.state;
-    const coin = Math.floor(totalHits / this.state.perPage);
+  const coin = Math.floor(totalHits / perPage);
 
-    return (
-      <div className={css.App}>
-        {this.state.isLoading && <Loader />}
-        <Searchbar onSubmit={this.formSubmit} query={query} />
-        <ImageGallery images={images} />
-        {coin > 1 && coin !== page && <Button onClick={this.handleAddImages} />}
-      </div>
-    );
-  }
+  return (
+    <div className={css.App}>
+      {status === 'loading' && <Loader />}
+      <Searchbar onSubmit={formSubmit} query={query} />
+      <ImageGallery images={images} />
+      {coin > 1 && coin !== page && <Button onClick={handleAddImages} />}
+    </div>
+  );
 }
